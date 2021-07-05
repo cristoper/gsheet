@@ -15,6 +15,7 @@ var app = &cli.App{
 			Usage:     "Creates a new folder",
 			ArgsUsage: "NAME",
 			Action:    CreateFolderAction,
+			Category:  "Files",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
 					Name:  "parent",
@@ -28,11 +29,13 @@ var app = &cli.App{
 			Usage:     "Delete file(s) from drive (careful, does not trash them!)",
 			ArgsUsage: "FILE_ID [FILE_ID...]",
 			Action:    DeleteAction,
+			Category:  "Files",
 		},
 		{
-			Name:   "list",
-			Usage:  "List file names and ids",
-			Action: ListAction,
+			Name:     "list",
+			Usage:    "List file names and ids",
+			Action:   ListAction,
+			Category: "Files",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
 					Name:  "parent",
@@ -42,9 +45,10 @@ var app = &cli.App{
 		},
 		{
 			Name:      "upload",
-			Usage:     "Upload a file to Google Drive. If a file with the same name exists in parent, it is replaced with the new file. If FILE is not given, reads from stdin (in which case --name is required).",
+			Usage:     "Upload a file to Google Drive.",
 			Action:    UploadAction,
 			ArgsUsage: "[FILE]",
+			Category:  "Files",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
 					Name:  "parent",
@@ -63,12 +67,14 @@ var app = &cli.App{
 			Usage:     "Download a file from google drive and send it to stdout",
 			Action:    DownloadAction,
 			ArgsUsage: "FILE_ID",
+			Category:  "Files",
 		},
 		{
 			Name:      "info",
 			Usage:     "Dump all file's metadata as json to stdout",
 			Action:    InfoAction,
 			ArgsUsage: "FILE_ID",
+			Category:  "Files",
 		},
 	},
 }
