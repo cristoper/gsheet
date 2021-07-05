@@ -24,16 +24,10 @@ var app = &cli.App{
 			},
 		},
 		{
-			Name:   "delete",
-			Usage:  "Delete a file from drive",
-			Action: DeleteAction,
-			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:     "id",
-					Usage:    "id of the file to delete",
-					Required: true,
-				},
-			},
+			Name:      "delete",
+			Usage:     "Delete file(s) from drive (careful, does not trash them!)",
+			ArgsUsage: "FILE_ID [FILE_ID...]",
+			Action:    DeleteAction,
 		},
 		{
 			Name:   "list",
@@ -63,6 +57,12 @@ var app = &cli.App{
 					DefaultText: "Name of input file",
 				},
 			},
+		},
+		{
+			Name:      "download",
+			Usage:     "Download a file from google drive and send it to stdout",
+			Action:    DownloadAction,
+			ArgsUsage: "FILE_ID",
 		},
 	},
 }
