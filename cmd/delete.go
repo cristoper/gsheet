@@ -7,6 +7,10 @@ import (
 )
 
 func DeleteAction(c *cli.Context) error {
-	fmt.Printf("args: %s\n", c.Args())
-	return nil
+	id := c.String("id")
+	err := svc.DeleteFile(id)
+	if err != nil {
+		fmt.Fprintf(c.App.ErrWriter, "Deleted file %s\n", id)
+	}
+	return err
 }

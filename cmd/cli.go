@@ -12,7 +12,7 @@ var app = &cli.App{
 	Commands: []*cli.Command{
 		{
 			Name:      "createFolder",
-			Usage:     "Creates a new folder in parent",
+			Usage:     "Creates a new folder",
 			ArgsUsage: "NAME",
 			Action:    CreateFolderAction,
 			Flags: []cli.Flag{
