@@ -17,9 +17,9 @@ var app = &cli.App{
 			Action:    CreateFolderAction,
 			Flags: []cli.Flag{
 				&cli.StringFlag{
-					Name:        "parent",
-					Usage:       "The id of a parent folder to act on.",
-					DefaultText: "root",
+					Name:  "parent",
+					Usage: "The id of a parent folder to act on.",
+					Value: "root",
 				},
 			},
 		},
@@ -47,9 +47,9 @@ var app = &cli.App{
 			ArgsUsage: "[FILE]",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
-					Name:        "parent",
-					Usage:       "id of the folder to upload to",
-					DefaultText: "root",
+					Name:  "parent",
+					Usage: "id of the folder to upload to",
+					Value: "root",
 				},
 				&cli.StringFlag{
 					Name:        "name",
