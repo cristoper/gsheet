@@ -37,13 +37,12 @@ var app = &cli.App{
 		},
 		{
 			Name:   "list",
-			Usage:  "List file names and ids in parent",
+			Usage:  "List file names and ids",
 			Action: ListAction,
 			Flags: []cli.Flag{
 				&cli.StringFlag{
-					Name:        "parent",
-					Usage:       "The id of a parent folder to act on.",
-					DefaultText: "root",
+					Name:  "parent",
+					Usage: "id of the folder to list (use 'root' for drive root)",
 				},
 			},
 		},
@@ -53,6 +52,11 @@ var app = &cli.App{
 			Action:    UploadAction,
 			ArgsUsage: "[FILE]",
 			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:        "parent",
+					Usage:       "id of the folder to upload to",
+					DefaultText: "root",
+				},
 				&cli.StringFlag{
 					Name:        "name",
 					Usage:       "Name to give the uploaded file",
