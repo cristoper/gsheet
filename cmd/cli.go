@@ -64,5 +64,11 @@ var app = &cli.App{
 			Action:    DownloadAction,
 			ArgsUsage: "FILE_ID",
 		},
+		{
+			Name:      "info",
+			Usage:     "Dump all file's metadata as json to stdout",
+			Action:    InfoAction,
+			ArgsUsage: "FILE_ID",
+		},
 	},
 }
