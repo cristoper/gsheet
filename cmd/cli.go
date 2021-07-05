@@ -37,8 +37,15 @@ var app = &cli.App{
 		},
 		{
 			Name:   "list",
-			Usage:  "List file names and ids in the folder specified by --parent.",
+			Usage:  "List file names and ids in parent",
 			Action: ListAction,
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:        "parent",
+					Usage:       "The id of a parent folder to act on.",
+					DefaultText: "root",
+				},
+			},
 		},
 		{
 			Name:      "upload",

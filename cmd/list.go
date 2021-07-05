@@ -7,6 +7,16 @@ import (
 )
 
 func ListAction(c *cli.Context) error {
-	fmt.Printf("args: %s\n", c.Args())
-	return nil
+	var q string
+	p := c.String("parent")
+	if p != "" {
+		q = fmt.Sprintf("'%s' in parents", p)
+	}
+	files, err := svc.Search(q)
+	if err == nil {
+		for _, f := range files {
+			fmt.Fprintf(c.App.ErrWriter, "%-16s\t%1s\n", f.Name, f.Id)
+		}
+	}
+	return err
 }
