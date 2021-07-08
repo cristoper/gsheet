@@ -58,6 +58,11 @@ func NewServiceWithCtx(ctx context.Context) (*Service, error) {
 	}, nil
 }
 
+// Get pointer to wrapped FilesService
+func (svc *Service) FilesService() *drive.FilesService {
+	return svc.filer.(*drive.FilesService)
+}
+
 // Search all of user's files
 // 'q' is the search query as documented here:
 // https://developers.google.com/drive/api/v3/ref-search-terms

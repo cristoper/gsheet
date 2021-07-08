@@ -1,5 +1,5 @@
 // Integration tests for gdrive package
-package gsheet_test
+package gdrive
 
 import (
 	"context"
@@ -8,8 +8,6 @@ import (
 	"strings"
 	"testing"
 	"time"
-
-	. "github.com/cristoper/gsheet/gdrive"
 )
 
 var (
@@ -24,7 +22,7 @@ var (
 3,2,1`
 )
 
-var svc = func() *Service {
+var svcDrive = func() *Service {
 	svc, err := NewServiceWithCtx(context.Background())
 	if err != nil {
 		log.Fatal(err)
@@ -32,9 +30,8 @@ var svc = func() *Service {
 	return svc
 }()
 
-// A big ol' integration script that exercises the major features of both the
-// gdrive and gsheet packages
-func TestGDriveIntegration(t *testing.T) {
+// Big ol' integration script to drive gdrive package
+func TestDriveIntegration(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping test in short mode.")
 	}
@@ -49,14 +46,14 @@ func TestGDriveIntegration(t *testing.T) {
 	// Delete test directory and all files
 
 	testName := fmt.Sprintf("gsheet_test_%d", time.Now().UnixNano())
-	testdir, err := svc.CreateFolder(testName, "root")
+	testdir, err := svcDrive.CreateFolder(testName, "root")
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("Created test directory with id %s", testdir.Id)
 
 	// new file
-	testfile, err := svc.CreateOrUpdateFile(testName+".csv", testdir.Id, strings.NewReader(testData))
+	testfile, err := svcDrive.CreateOrUpdateFile(testName+".csv", testdir.Id, strings.NewReader(testData))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -64,7 +61,7 @@ func TestGDriveIntegration(t *testing.T) {
 	if testfile.MimeType != "application/vnd.google-apps.spreadsheet" {
 		t.Fatal(".csv was not converted to gsheet")
 	}
-	contents, err := svc.FileContents(testfile.Id)
+	contents, err := svcDrive.FileContents(testfile.Id)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -73,7 +70,7 @@ func TestGDriveIntegration(t *testing.T) {
 	}
 
 	// update file
-	updatefile, err := svc.CreateOrUpdateFile(testName+".csv", testdir.Id, strings.NewReader(modData))
+	updatefile, err := svcDrive.CreateOrUpdateFile(testName+".csv", testdir.Id, strings.NewReader(modData))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -84,7 +81,7 @@ func TestGDriveIntegration(t *testing.T) {
 	if updatefile.MimeType != "application/vnd.google-apps.spreadsheet" {
 		t.Fatal("updated file was not converted to gsheet")
 	}
-	contents, err = svc.FileContents(updatefile.Id)
+	contents, err = svcDrive.FileContents(updatefile.Id)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -93,7 +90,7 @@ func TestGDriveIntegration(t *testing.T) {
 	}
 
 	// 'binary' file (ie, non workspace file type)
-	binaryfile, err := svc.CreateOrUpdateFile(testName+".txt", testdir.Id, strings.NewReader(testData))
+	binaryfile, err := svcDrive.CreateOrUpdateFile(testName+".txt", testdir.Id, strings.NewReader(testData))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -101,7 +98,7 @@ func TestGDriveIntegration(t *testing.T) {
 	if !strings.Contains(binaryfile.MimeType, "text/plain") {
 		t.Fatalf("Test binary file unexpected mimetype: %s", binaryfile.MimeType)
 	}
-	contents, err = svc.FileContents(binaryfile.Id)
+	contents, err = svcDrive.FileContents(binaryfile.Id)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -110,11 +107,11 @@ func TestGDriveIntegration(t *testing.T) {
 	}
 
 	// Delete test dir
-	err = svc.DeleteFile(testdir.Id)
+	err = svcDrive.DeleteFile(testdir.Id)
 	if err != nil {
 		t.Fatal(err)
 	}
-	testdirs, err := svc.FilesNamed(testName, "root")
+	testdirs, err := svcDrive.FilesNamed(testName, "root")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -122,5 +119,4 @@ func TestGDriveIntegration(t *testing.T) {
 		t.Fatal("Failed to delete testdir")
 	}
 	t.Log("Deleted test directory.")
-
 }
