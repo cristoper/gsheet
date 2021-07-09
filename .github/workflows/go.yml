@@ -1,0 +1,35 @@
+name: Go
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+
+  test:
+    environment: CI
+    env:
+      GOOGLE_APPLICATION_CREDENTIALS: '${{ github.workspace }}/creds.json'
+    strategy:
+      matrix:
+        go-version: [1.15.x, 1.16.x]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    - name: Setup Credentials
+      env:
+        GSHEET_GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GSHEET_GOOGLE_APPLICATION_CREDENTIALS }}
+      run: 'echo "$GSHEET_GOOGLE_APPLICATION_CREDENTIALS" > "$GOOGLE_APPLICATION_CREDENTIALS"'
+
+    - name: Test
+      run: go test -v ./...
