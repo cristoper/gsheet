@@ -10,6 +10,79 @@ var app = &cli.App{
 	Usage: "upload and download Google Sheet data from the cli",
 	Flags: []cli.Flag{},
 	Commands: []*cli.Command{
+		// Sheets
+		{
+			Name:     "csv",
+			Usage:    "Pipe csv data to range or read it from range",
+			Action:   RangeSheetAction,
+			Category: "Sheets",
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:  "id",
+					Usage: "id of the spreadsheet document",
+				},
+				&cli.StringFlag{
+					Name:  "range",
+					Usage: "Sheet range to update or get (A1 notation)",
+				},
+				&cli.StringFlag{
+					Name:  "sep",
+					Value: ",",
+					Usage: `Record separator (use '\t' for tab)`,
+				},
+			},
+		},
+		{
+			Name:     "clear",
+			Usage:    "Clear all values from given range",
+			Action:   ClearSheetAction,
+			Category: "Sheets",
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:  "id",
+					Usage: "id of the spreadsheet document",
+				},
+				&cli.StringSliceFlag{
+					Name:  "range",
+					Usage: "Sheet range to update or get (A1 notation)",
+				},
+			},
+		},
+		{
+			Name:     "new",
+			Usage:    "Create a new sheet",
+			Action:   NewSheetAction,
+			Category: "Sheets",
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:  "id",
+					Usage: "id of the spreadsheet document",
+				},
+				&cli.StringFlag{
+					Name:  "name",
+					Usage: "title to give the new sheet",
+					Value: "NewSheet",
+				},
+			},
+		},
+		{
+			Name:     "delete",
+			Usage:    "Delete the named sheet",
+			Action:   DeleteSheetAction,
+			Category: "Sheets",
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:  "id",
+					Usage: "id of the spreadsheet document",
+				},
+				&cli.StringFlag{
+					Name:  "name",
+					Usage: "name of the sheet to delete",
+				},
+			},
+		},
+
+		// Files
 		{
 			Name:      "createFolder",
 			Usage:     "Creates a new folder",

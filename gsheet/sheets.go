@@ -27,6 +27,7 @@ type valueService interface {
 
 // Wrapper around both SpreadsheetsService and SpreadsheetsValuesService
 type Service struct {
+	Sep    rune // record separator when [un]serializing csv
 	ctx    context.Context
 	sheet  ssService
 	values valueService
@@ -39,6 +40,7 @@ func NewServiceWithCtx(ctx context.Context) (*Service, error) {
 		return nil, err
 	}
 	return &Service{
+		Sep:    ',',
 		ctx:    ctx,
 		sheet:  ssvc.Spreadsheets,
 		values: ssvc.Spreadsheets.Values,
@@ -161,6 +163,7 @@ func (svc *Service) GetRangeCSV(id, a1Range string) ([]byte, error) {
 	}
 	buf := bytes.NewBuffer([]byte{})
 	csvW := csv.NewWriter(buf)
+	csvW.Comma = svc.Sep
 	err = csvW.WriteAll(rows)
 	if err != nil {
 		return nil, err
@@ -234,6 +237,7 @@ func (svc *Service) UpdateRangeStrings(id, a1Range string, values [][]string) (*
 // (so strings containing numerals may be converted to numbers, etc.)
 func (svc *Service) UpdateRangeCSV(id, a1Range string, values io.Reader) (*sheets.UpdateValuesResponse, error) {
 	csvR := csv.NewReader(values)
+	csvR.Comma = svc.Sep
 	rows, err := csvR.ReadAll()
 	if err != nil {
 		return nil, err

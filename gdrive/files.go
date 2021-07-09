@@ -16,7 +16,6 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"google.golang.org/api/drive/v3"
 	"google.golang.org/api/googleapi"
@@ -76,8 +75,7 @@ func (svc *Service) Search(q string) ([]*drive.File, error) {
 	}
 
 	listCall := svc.filer.List().Fields("files(id, name, parents, shared)").SupportsAllDrives(true).IncludeTeamDriveItems(true).Q(q)
-	ctx, _ := context.WithTimeout(svc.ctx, time.Second*60)
-	err := listCall.Pages(ctx, pages)
+	err := listCall.Pages(svc.ctx, pages)
 	if err == nil {
 		_, err = listCall.Do()
 	}
