@@ -252,3 +252,35 @@ func (svc *Service) Clear(id string, a1Ranges ...string) error {
 	}).Context(svc.ctx).Do()
 	return err
 }
+
+// Sort the sheet anmed 'name' on spreadsheet 'id' by 'column'
+// If asc is true, sort ascending; otherwise sort descending
+// Column is the column index rather than A1 notation (0=A, 1=B, ...)
+func (svc *Service) Sort(id, name string, asc bool, column int64) error {
+	sheetId, err := svc.SheetFromTitle(id, name)
+	if err != nil {
+		return err
+	}
+
+	order := "DESCENDING"
+	if asc {
+		order = "ASCENDING"
+	}
+
+	sortSpec := sheets.Request{
+		SortRange: &sheets.SortRangeRequest{
+			Range: &sheets.GridRange{
+				SheetId: *sheetId,
+			},
+			SortSpecs: []*sheets.SortSpec{
+				&sheets.SortSpec{
+					DimensionIndex: column,
+					SortOrder:      order,
+				}},
+		},
+	}
+	_, err = svc.sheet.BatchUpdate(id, &sheets.BatchUpdateSpreadsheetRequest{
+		Requests: []*sheets.Request{&sortSpec},
+	}).Context(svc.ctx).Do()
+	return err
+}

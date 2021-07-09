@@ -20,6 +20,11 @@ func ClearSheetAction(c *cli.Context) error {
 	return sheetSvc.Clear(c.String("id"), c.StringSlice("range")...)
 }
 
+func SortSheetAction(c *cli.Context) error {
+	return sheetSvc.Sort(c.String("id"), c.String("name"), c.Bool("ascending"),
+		c.Int64("column"))
+}
+
 func RangeSheetAction(c *cli.Context) error {
 	info, err := os.Stdin.Stat()
 	if err != nil {

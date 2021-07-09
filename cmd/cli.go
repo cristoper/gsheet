@@ -81,6 +81,34 @@ var app = &cli.App{
 				},
 			},
 		},
+		{
+			Name:     "sort",
+			Usage:    "Sort a sheet by column(s)",
+			Action:   SortSheetAction,
+			Category: "Sheets",
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:  "id",
+					Usage: "id of the spreadsheet document",
+				},
+				&cli.StringFlag{
+					Name:  "name",
+					Usage: "name of the sheet to sort",
+				},
+				&cli.BoolFlag{
+					Name:    "ascending",
+					Aliases: []string{"asc"},
+					Usage:   "If set sorts in ascending order; otherwise sorts in descending order",
+					Value:   false,
+				},
+				&cli.Int64Flag{
+					Name:    "column",
+					Aliases: []string{"c", "col"},
+					Usage:   "Column index to sort (0=A, 1=B, ...)",
+					Value:   0,
+				},
+			},
+		},
 
 		// Files
 		{
