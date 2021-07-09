@@ -1,0 +1,41 @@
+:toc:
+:toc-placement!:
+
+= gsheet
+
+toc::[]
+
+== Introduction
+
+`gsheet` is a cli tool for sending and receiving csv data to and from Google Sheets.
+
+With `gsheet` you can:
+
+- Pipe csv data from stdin to a Google Sheet range
+- Pipe csv data from a Google Sheet range to stdout
+- Clear a Google Sheet range
+- Create and delete sheets of a Spreadsheet document
+- Sort a sheet by a column
+- Download Google Sheet documents from Google Drive as .csv files
+- Upload .csv files to Google Drive as Sheet documents
+- (You can also upload arbitrary files to Google Drive, though `gsheet` isn't trying to be a general purpose gdrive interface)
+
+`gsheets` supports authenticating with Google using https://cloud.google.com/iam/docs/service-accounts[service accounts], which is a simple way to allow scripts to acces Google Sheets (see <<auth>> below).
+
+=== Why?
+
+I often write scripts and cron jobs for clients that create tabular reports, and I've found that Google Sheets is a convenient way to expose them on the web (easy to use, built-in access control). In addition, I've found that setting up a Sheet with a few fields that my script can read is a convenient way to allow clients to configure apps without needing to build a web interface just to get a few runtime config values.
+
+== Installation
+
+I will update this README with installation and usage instructions when I think it is ready to be used by other people.
+
+[#auth]
+== Authentication and Authorization
+
+== CLI Usage
+
+== Use as Golang Package
+
+
+== Hack
