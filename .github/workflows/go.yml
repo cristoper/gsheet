@@ -11,12 +11,13 @@ jobs:
 
   test:
     environment: CI
-    env:
-      GOOGLE_APPLICATION_CREDENTIALS: '${{ github.workspace }}/creds.json'
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}
     strategy:
       matrix:
         go-version: [1.15.x, 1.16.x]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
@@ -27,9 +28,14 @@ jobs:
         go-version: ${{ matrix.go-version }}
 
     - name: Setup Credentials
+      shell: bash
       env:
         GSHEET_GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GSHEET_GOOGLE_APPLICATION_CREDENTIALS }}
-      run: 'echo "$GSHEET_GOOGLE_APPLICATION_CREDENTIALS" > "$GOOGLE_APPLICATION_CREDENTIALS"'
+      run: |
+        echo "$GSHEET_GOOGLE_APPLICATION_CREDENTIALS" > creds.json
 
     - name: Test
-      run: go test -v ./...
+      shell: bash
+      run: |
+        export GOOGLE_APPLICATION_CREDENTIALS=$(python -c 'import os, sys; print(os.path.realpath("creds.json"))')
+        go test -v ./...
