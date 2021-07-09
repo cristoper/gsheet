@@ -20,7 +20,7 @@ With `gsheet` you can:
 - Upload .csv files to Google Drive as Sheet documents
 - (You can also upload arbitrary files to Google Drive, though `gsheet` isn't trying to be a general purpose gdrive interface)
 
-`gsheets` supports authenticating with Google using https://cloud.google.com/iam/docs/service-accounts[service accounts], which is a simple way to allow scripts to acces Google Sheets (see <<auth>> below).
+`gsheets` supports authenticating with Google using https://cloud.google.com/iam/docs/understanding-service-accounts[service accounts], which is a simple way to allow scripts to acces Google Sheets (see <<auth>> below).
 
 === Why?
 
@@ -33,9 +33,25 @@ I will update this README with installation and usage instructions when I think 
 [#auth]
 == Authentication and Authorization
 
+The hardest part about getting started with `gsheet` is creating the API credentials so that the program can access Google Drive, but it's not so bad and you only have to do it once. In order for `gsheet` to read and update Sheets documents, it must 1) be provided credentials to authenticate with Google and 2) be granted access to whichever Google Drive folders/documents you want to be accessible to it:
+
+. Create a service account and download the credentials .json file to the computer you will use `gsheet` on
+** From the https://console.cloud.google.com/home/dashboard[Google Cloud API Dashboard] create a new project and enable both the `Google Drive API` and the `Google Sheets API` on it. See https://cloud.google.com/apis/docs/getting-started[Google's Getting Started Guide] for creating a project and enabling APIs.
+** From your project's dashboard Click on "IAM & Admin" > "Service Accounts". Then click "Create Service Account". For the service account's role I recommend "Basic>Editor".
+** Once the service account is created, click on it to manage its details. From the "Keys" tab click "Add Key" to create credentials in a .json file for the service account that `gscheme` will use to authenticate as the user.
+*** The .json file containing the credentials should download automatically. KEEP THIS FILE SECRET. Anyone with the credentials can edit any files you grant the service account access to.
+*** Google's documentation is available as https://cloud.google.com/iam/docs/creating-managing-service-accounts[Creating and Managing Service Accounts] and https://cloud.google.com/iam/docs/creating-managing-service-account-keys[Creating and Managing Service Account Keys]
+** Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to the path to the .json file. This is how `gscheme` finds the credentials when it runs. (See https://cloud.google.com/docs/authentication[Authentication Overview].)
+. In Google Drive grant access to the service account (the email address generated when you created the service account above) to any folders or files you want to be able to access with `gscheme`. Note that if you only want to store files in the service account's own drive (not viewable from the Google Drive web interface), then you don't actually have to grant it access to any of your folders or documents.
+
+=== What about OAuth authentication?
+
+Currently `gscheme` only supports service accounts which, depsite the convoluted instructions above, are simple to generate and use once you figure it out (you just need a single .json file with credentials to grant a script access to Google Drive files).
+
+However, if an OAuth workflow (where you can authenticate `gscheme` using your own Google account) would be useful to someone, I'm open to implementing it. Feel free to create an issue. In the mean time check out https://github.com/simon3z/gsheetcsv[simon3z/gsheetcsv] which is another simple cli tool in Go which allows interacting with Google Sheets and uses OAuth for authentication.
+
 == CLI Usage
 
 == Use as Golang Package
-
 
 == Hack
