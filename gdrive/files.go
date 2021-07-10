@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"mime"
 	"net/http"
 	"path/filepath"
@@ -114,6 +115,18 @@ func (svc *Service) CreateFolder(name, parent string) (*drive.File, error) {
 	return createCall.Do()
 }
 
+// On Windows the mime.TypeByExtension method can return wrong values
+// (https://github.com/golang/go/issues/32350)
+// So we hardcode the most important extension(s)
+func typeByExtension(ext string) string {
+	ext = strings.ToLower(ext)
+	log.Print(ext)
+	if ext == ".csv" {
+		return "text/csv; charset=utf-8"
+	}
+	return mime.TypeByExtension(ext)
+}
+
 // Create a new file named 'name' in folder with id 'parent' and content read
 // from 'src'.
 // If name has '.csv' extension, then the created file is converted to a Google
@@ -123,7 +136,7 @@ func (svc *Service) CreateFolder(name, parent string) (*drive.File, error) {
 // (This will not overwrite any other files with the same name.)
 func (svc *Service) CreateFile(name, parent string, src io.Reader) (*drive.File, error) {
 	ext := filepath.Ext(name)
-	mime := mime.TypeByExtension(ext)
+	mime := typeByExtension(ext)
 	var gmime string
 	if strings.Contains(mime, "text/csv") {
 		gmime = "application/vnd.google-apps.spreadsheet"
@@ -169,7 +182,7 @@ func (svc *Service) UpdateFile(id, name string, src io.Reader) (*drive.File, err
 	})
 	if src != nil {
 		ext := filepath.Ext(name)
-		updateCall.Media(src, googleapi.ContentType(mime.TypeByExtension(ext)))
+		updateCall.Media(src, googleapi.ContentType(typeByExtension(ext)))
 	}
 	return updateCall.Do()
 }
