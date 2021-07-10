@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"mime"
 	"net/http"
 	"path/filepath"
@@ -120,7 +119,6 @@ func (svc *Service) CreateFolder(name, parent string) (*drive.File, error) {
 // So we hardcode the most important extension(s)
 func typeByExtension(ext string) string {
 	ext = strings.ToLower(ext)
-	log.Print(ext)
 	if ext == ".csv" {
 		return "text/csv; charset=utf-8"
 	}
