@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/cristoper/gsheet/gdrive"
-	"github.com/cristoper/gsheet/gsheet"
+	"github.com/cristoper/gsheet/gsheets"
 )
 
 // global service objects used by commands
@@ -19,8 +19,8 @@ var (
 		return svc
 	}()
 
-	sheetSvc = func() *gsheet.Service {
-		svc, err := gsheet.NewServiceWithCtx(context.Background())
+	sheetSvc = func() *gsheets.Service {
+		svc, err := gsheets.NewServiceWithCtx(context.Background())
 		if err != nil {
 			log.Fatal(err)
 		}

@@ -1,5 +1,5 @@
-// Integration tests for gdrive package
-package gsheet
+// Integration tests for drive package
+package gsheets
 
 import (
 	"context"
@@ -41,19 +41,19 @@ var (
 	}()
 )
 
-// Big ol' integration script to drive gsheet package
+// Big ol' integration script to drive the sheet package
 func TestSheetIntegration(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping test in short mode.")
 	}
 
 	// Plan:
-	// - (Create new spreadsheet with gdrive package)
+	// - (Create new spreadsheet with drive package)
 	// - Create new sheet
 	// - Update data in sheet via csv
 	// - Clear sheet
 	// - Delete sheet
-	// - (Use gdrive package to delete document)
+	// - (Use drive package to delete document)
 
 	testName := fmt.Sprintf("gsheet_test_%d", time.Now().UnixNano())
 	testfile, err := svcDrive.CreateOrUpdateFile(testName+".csv",

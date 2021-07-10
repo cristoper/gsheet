@@ -1,5 +1,5 @@
 // https://pkg.go.dev/google.golang.org/api@v0.50.0/sheets/v4
-package gsheet
+package gsheets
 
 import (
 	"bytes"

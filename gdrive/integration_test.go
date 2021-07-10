@@ -30,7 +30,7 @@ var svcDrive = func() *Service {
 	return svc
 }()
 
-// Big ol' integration script to drive gdrive package
+// Big ol' integration script to drive the drive package
 func TestDriveIntegration(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping test in short mode.")
