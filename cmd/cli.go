@@ -69,7 +69,7 @@ var app = &cli.App{
 			},
 		},
 		{
-			Name:     "delete",
+			Name:     "deleteSheet",
 			Usage:    "Delete the named sheet",
 			Action:   DeleteSheetAction,
 			Category: "Sheets",
