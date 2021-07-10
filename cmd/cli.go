@@ -18,8 +18,9 @@ var app = &cli.App{
 			Category: "Sheets",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
-					Name:  "id",
-					Usage: "id of the spreadsheet document",
+					Name:    "id",
+					Usage:   "id of the spreadsheet document",
+					EnvVars: []string{"GSHEET_ID"},
 				},
 				&cli.StringFlag{
 					Name:  "range",
@@ -39,8 +40,9 @@ var app = &cli.App{
 			Category: "Sheets",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
-					Name:  "id",
-					Usage: "id of the spreadsheet document",
+					Name:    "id",
+					Usage:   "id of the spreadsheet document",
+					EnvVars: []string{"GSHEET_ID"},
 				},
 				&cli.StringSliceFlag{
 					Name:  "range",
@@ -55,8 +57,9 @@ var app = &cli.App{
 			Category: "Sheets",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
-					Name:  "id",
-					Usage: "id of the spreadsheet document",
+					Name:    "id",
+					Usage:   "id of the spreadsheet document",
+					EnvVars: []string{"GSHEET_ID"},
 				},
 				&cli.StringFlag{
 					Name:  "name",
@@ -72,8 +75,9 @@ var app = &cli.App{
 			Category: "Sheets",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
-					Name:  "id",
-					Usage: "id of the spreadsheet document",
+					Name:    "id",
+					Usage:   "id of the spreadsheet document",
+					EnvVars: []string{"GSHEET_ID"},
 				},
 				&cli.StringFlag{
 					Name:  "name",
@@ -88,8 +92,9 @@ var app = &cli.App{
 			Category: "Sheets",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
-					Name:  "id",
-					Usage: "id of the spreadsheet document",
+					Name:    "id",
+					Usage:   "id of the spreadsheet document",
+					EnvVars: []string{"GSHEET_ID"},
 				},
 				&cli.StringFlag{
 					Name:  "name",
@@ -119,9 +124,10 @@ var app = &cli.App{
 			Category:  "Files",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
-					Name:  "parent",
-					Usage: "The id of a parent folder to act on.",
-					Value: "root",
+					Name:    "parent",
+					Usage:   "The id of a parent folder to act on.",
+					Value:   "root",
+					EnvVars: []string{"GSHEET_PARENT"},
 				},
 			},
 		},
@@ -139,8 +145,9 @@ var app = &cli.App{
 			Category: "Files",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
-					Name:  "parent",
-					Usage: "id of the folder to list (use 'root' for drive root)",
+					Name:    "parent",
+					Usage:   "id of the folder to list (use 'root' for drive root)",
+					EnvVars: []string{"GSHEET_PARENT"},
 				},
 			},
 		},
@@ -152,9 +159,10 @@ var app = &cli.App{
 			Category:  "Files",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
-					Name:  "parent",
-					Usage: "id of the folder to upload to",
-					Value: "root",
+					Name:    "parent",
+					Usage:   "id of the folder to upload to",
+					Value:   "root",
+					EnvVars: []string{"GSHEET_PARENT"},
 				},
 				&cli.StringFlag{
 					Name:        "name",
