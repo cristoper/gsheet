@@ -160,7 +160,8 @@ func (svc *Service) CreateOrUpdateFile(name, parent string,
 	// for .csv files remove the extension when searching since we convert
 	// these to spreadsheets on upload and google workspace documents don't
 	// include the ext in their name
-	files, err := svc.FilesNamed(strings.TrimSuffix(name, ".csv"), parent)
+	strippedName := strings.TrimSuffix(name, ".csv")
+	files, err := svc.FilesNamed(strippedName, parent)
 	if err != nil {
 		return nil, err
 	}
@@ -175,9 +176,7 @@ func (svc *Service) CreateOrUpdateFile(name, parent string,
 // Overwrite an existing drive file (id) with name and content read from src
 // Name should be the desired file name INCLUDING extension
 func (svc *Service) UpdateFile(id, name string, src io.Reader) (*drive.File, error) {
-	updateCall := svc.filer.Update(id, &drive.File{
-		Name: name,
-	})
+	updateCall := svc.filer.Update(id, &drive.File{})
 	if src != nil {
 		ext := filepath.Ext(name)
 		updateCall.Media(src, googleapi.ContentType(typeByExtension(ext)))
