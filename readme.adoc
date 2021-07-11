@@ -11,42 +11,66 @@ toc::[]
 
 With `gsheet` you can:
 
-- Pipe csv data from stdin to a Google Sheet range
-- Pipe csv data from a Google Sheet range to stdout
-- Clear a Google Sheet range
-- Create and delete sheets of a Spreadsheet document
-- Sort a sheet by a column
-- Download Google Sheet documents from Google Drive as .csv files
-- Upload .csv files to Google Drive as Sheet documents
-- (You can also upload/delete arbitrary files to/from Google Drive, though `gsheet` isn't trying to be a general purpose gdrive interface)
+- Pipe csv data from stdin to a Google Sheet range (`cat data.csv | gsheet csv --id 1o88FhvAXg8Q_ZMFudQLuZ1ShsigbAgJ --range 'Sheet1')
+- Pipe csv data from a Google Sheet range to stdout (`gsheet csv --id 1o88FhvAXg8Q_ZMFudQLuZ1ShsigbAgJ --range "'Sheet'!A1:D20" > data.csv`
+- Clear a Google Sheet range `gsheet clear --id 1o88FhvAXg8Q_ZMFudQLuZ1ShsigbAgJ --range Sheet2`
+- Create and delete sheets of a Spreadsheet document `gsheet newSheet --id 1o88FhvAXg8Q_ZMFudQLuZ1ShsigbAgJ --name NewSheet`
+- Sort a sheet by a column `gsheet sort --id 1o88FhvAXg8Q_ZMFudQLuZ1ShsigbAgJ --name Sheet1 -c 2`
 
-`gsheets` supports authenticating with Google using https://cloud.google.com/iam/docs/understanding-service-accounts[service accounts], which is a simple way to allow scripts to acces Google Sheets (see <<auth>> below).
+Google Drive operations (with special handling for .csv):
+
+- Upload .csv files to Google Drive as Sheet documents (`gsheet upload --parent PARENT_ID ./path/to/data.csv`
+- Download Google Sheet documents from Google Drive as .csv files (`gsheet download 1o88FhvAXg8Q_ZMFudQLuZ1ShsigbAgJ > data.csv`)
+- Create a new empty folder (`gsheet createFolder --parent PARENT_ID 'New Folder Name'`)
+
+You can also upload/delete and get info about arbitrary files on Google Drive, but `gsheet` isn't trying to be a general purpose gdrive interface. If you need a full Google Drive command-line client, check out https://github.com/odeke-em/drive[odeke-em/drive], or something that provides a filesystem interface like https://github.com/rclone/rclone[rclone].
+
+`gsheets` supports authenticating with Google using https://cloud.google.com/iam/docs/understanding-service-accounts[service accounts], which is a simple way to allow scripts to access Google Sheets (see <<auth>> below).
 
 === Why?
 
 I often write scripts and cron jobs for clients that create tabular reports, and I've found that Google Sheets is a convenient way to expose them on the web (easy to use, built-in access control). In addition, I've found that setting up a Sheet with a few fields that my script can read is a convenient way to allow clients to configure apps without needing to build a web interface just to get a few runtime config values.
 
+My typical workflow is to create a Sheet using Google's web interface, set up the formatting and any formulas, and then use `gsheet` to update the data from scripts.
+
 == Installation
 
-I will update this README with installation and usage instructions when I think it is ready to be used by other people.
+NOTE: I will update this README with installation and usage instructions when I think it is ready to be used by other people.
+
+`gsheet` is not yet packaged for any package manager yet (let me know if you can help with that!), but you can download binaries for major platforms from https://github.com/cristoper/gsheet/releases[the Releases page].
+
+Otherwise, if you have Go installed you can:
+
+[source, bash]
+----
+# Install with go get
+go get github.com/cristoper/gsheet/cmd/gsheet
+
+# or build/install from git repo
+git clone https://github.com/cristoper/gsheet.git
+cd gsheet
+go install ./cmd/gsheet
+----
+
+However, either way will pull in the build dependencies (Google's API SDKs) which are big (200MB+) so can be slow.
 
 [#auth]
 == Authentication and Authorization
 
-The hardest part about getting started with `gsheet` is creating the API credentials so that the program can access Google Drive, but it's not so bad and you only have to do it once. In order for `gsheet` to read and update Sheets documents, it must 1) be provided credentials to authenticate with Google and 2) be granted access to whichever Google Drive folders/documents you want to be accessible to it:
+The hardest part about getting started with `gsheet` is creating the API credentials so that the program can access Google Drive, but it's not so bad and you only have to do it once. In order for `gsheet` to read and update Sheets documents, it must 1) be provided credentials to authenticate with Google and 2) be granted access to whichever Google Drive folders/documents it should be able to read/write:
 
-. Create a service account and download the credentials .json file to the computer you will use `gsheet` on
+. Create a service account and download the credentials .json file to the computer you will use `gsheet` on. Point the GOOGLE_APPLICATION_CREDENTIALS envvar to that file before running `gsheet`.
 ** From the https://console.cloud.google.com/home/dashboard[Google Cloud API Dashboard] create a new project and enable both the `Google Drive API` and the `Google Sheets API` on it. See https://cloud.google.com/apis/docs/getting-started[Google's Getting Started Guide] for creating a project and enabling APIs.
 ** From your project's dashboard Click on "IAM & Admin" > "Service Accounts". Then click "Create Service Account". For the service account's role I recommend "Basic>Editor".
 ** Once the service account is created, click on it to manage its details. From the "Keys" tab click "Add Key" to create credentials in a .json file for the service account that `gsheet` will use to authenticate as the user.
-*** The .json file containing the credentials should download automatically. KEEP THIS FILE SECRET. Anyone with the credentials can edit any files you grant the service account access to.
+*** The .json file containing the credentials should download automatically. KEEP THIS FILE SECRET (do not check it into source control). Anyone with the credentials can edit any files you grant the service account access to.
 *** Google's documentation is available as https://cloud.google.com/iam/docs/creating-managing-service-accounts[Creating and Managing Service Accounts] and https://cloud.google.com/iam/docs/creating-managing-service-account-keys[Creating and Managing Service Account Keys]
 ** Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to the path to the .json file. This is how `gsheet` finds the credentials when it runs. (See https://cloud.google.com/docs/authentication[Google's Authentication Overview].)
-. In Google Drive grant access to the service account (the email address generated when you created the service account above) to any folders or files you want to be able to access with `gsheet`. Note that if you only want to store files in the service account's own drive (not viewable from the Google Drive web interface), then you don't actually have to grant it access to any of your folders or documents.
+. In Google Drive grant share files and folders with the service account (the email address generated when you created the service account above) as if it were any other user. Note that if you only want to store files in the service account's own drive (not viewable from the Google Drive web interface), then you don't actually have to grant it access to any of your folders or documents.
 
 === What about OAuth authentication?
 
-Currently `gsheet` only supports service accounts which, depsite the convoluted instructions above, are simple to generate and use once you figure it out (you just need a single .json file with credentials to grant a script access to Google Drive files).
+Currently `gsheet` only supports service accounts which, despite the convoluted instructions above, are simple to generate and use once you figure it out (you just need a single .json file with credentials to grant a script access to Google services).
 
 However, if an OAuth workflow (where you can authenticate `gsheet` using your own Google account) would be useful to someone, I'm open to implementing it. Feel free to create an issue. In the mean time check out https://github.com/simon3z/gsheetcsv[simon3z/gsheetcsv] which is another simple cli tool in Go which allows interacting with Google Sheets and uses OAuth for authentication.
 
