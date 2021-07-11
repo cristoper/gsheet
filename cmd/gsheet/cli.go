@@ -4,11 +4,15 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+// Set with -ldflags "-X main.version=VERSION"
+var version string
+
 // Configure all of the urfave/cli commands, flags and arguments
 var app = &cli.App{
-	Name:  "gsheet",
-	Usage: "upload and download Google Sheet data from the cli",
-	Flags: []cli.Flag{},
+	Name:    "gsheet",
+	Version: version,
+	Usage:   "upload and download Google Sheet data from the cli",
+	Flags:   []cli.Flag{},
 	Commands: []*cli.Command{
 		// Sheets
 		{
