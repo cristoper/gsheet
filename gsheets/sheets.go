@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/csv"
 	"errors"
+	"fmt"
 	"io"
 
 	"google.golang.org/api/sheets/v4"
@@ -260,6 +261,10 @@ func (svc *Service) Sort(id, name string, asc bool, column int64) error {
 	sheetId, err := svc.SheetFromTitle(id, name)
 	if err != nil {
 		return err
+	}
+
+	if sheetId == nil {
+		return errors.New(fmt.Sprintf("No sheet titled %s found", name))
 	}
 
 	order := "DESCENDING"
