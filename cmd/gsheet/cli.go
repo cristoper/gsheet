@@ -55,7 +55,7 @@ var app = &cli.App{
 			},
 		},
 		{
-			Name:     "new",
+			Name:     "newSheet",
 			Usage:    "Create a new sheet",
 			Action:   NewSheetAction,
 			Category: "Sheets",
