@@ -157,14 +157,23 @@ func (svc *Service) CreateOrUpdateFile(name, parent string,
 	src io.Reader) (*drive.File, error) {
 	var file *drive.File
 
-	// for .csv files remove the extension when searching since we convert
-	// these to spreadsheets on upload and google workspace documents don't
-	// include the ext in their name
-	strippedName := strings.TrimSuffix(name, ".csv")
-	files, err := svc.FilesNamed(strippedName, parent)
+	files, err := svc.FilesNamed(name, parent)
 	if err != nil {
 		return nil, err
 	}
+	if strings.HasSuffix(name, ".csv") &&
+		(files != nil || len(files) == 0) {
+		// Try again without the extension
+		// This is because when Google Drive imports .csv files it strips the
+		// ext from the file name, so searching for the same name to update the
+		// file will end up just creating a new file and so on.
+		var name = strings.TrimSuffix(name, ".csv")
+		files, err = svc.FilesNamed(name, parent)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	if len(files) > 0 {
 		file, err = svc.UpdateFile(files[0].Id, name, src)
 	} else {
