@@ -52,6 +52,22 @@ func TestDriveIntegration(t *testing.T) {
 	}
 	t.Logf("Created test directory with id %s", testdir.Id)
 
+	// Defer the delete test so that we at least attempt to clean up if any other tests fail
+	defer func() {
+		err = svcDrive.DeleteFile(testdir.Id)
+		if err != nil {
+			t.Fatal(err)
+		}
+		testdirs, err := svcDrive.FilesNamed(testName, "root")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(testdirs) != 0 {
+			t.Fatal("Failed to delete testdir")
+		}
+		t.Log("Deleted test directory.")
+	}()
+
 	// new file
 	testfile, err := svcDrive.CreateOrUpdateFile(testName+".csv", testdir.Id, strings.NewReader(testData))
 	if err != nil {
@@ -105,18 +121,4 @@ func TestDriveIntegration(t *testing.T) {
 	if strings.ReplaceAll(string(contents), "\r", "") != testData {
 		t.Fatalf("File contents do not match (got '%v' but expected '%v')", contents, []byte(testData))
 	}
-
-	// Delete test dir
-	err = svcDrive.DeleteFile(testdir.Id)
-	if err != nil {
-		t.Fatal(err)
-	}
-	testdirs, err := svcDrive.FilesNamed(testName, "root")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(testdirs) != 0 {
-		t.Fatal("Failed to delete testdir")
-	}
-	t.Log("Deleted test directory.")
 }

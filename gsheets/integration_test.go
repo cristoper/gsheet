@@ -63,6 +63,15 @@ func TestSheetIntegration(t *testing.T) {
 	}
 	t.Logf("Created test spreadsheet named %s with id %s and mimetype %s", testfile.Name, testfile.Id, testfile.MimeType)
 
+	// Defer delete test so we try to clean up if any of the other tests fail
+	defer func() {
+		err = svcDrive.DeleteFile(testfile.Id)
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Log("Test file deleted.")
+	}()
+
 	err = svcSheet.NewSheet(testfile.Id, "TEST")
 	if err != nil {
 		t.Fatal(err)
@@ -118,10 +127,4 @@ func TestSheetIntegration(t *testing.T) {
 	if len(ss.Sheets) != 1 {
 		t.Fatal("Unexpected number of sheets after deleting TEST")
 	}
-
-	err = svcDrive.DeleteFile(testfile.Id)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Log("Test file deleted.")
 }
