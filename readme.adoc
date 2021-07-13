@@ -218,11 +218,21 @@ For a quick-and-dirty example of how to use the packages look at the `integratio
 To run tests:
 
 ----
-go test ./...
+make test
 ----
 
 To build:
 
 ----
-go build ./cmd/gsheet/
+make build
 ----
+
+To build binaries for various platforms in `build/`:
+
+----
+make xbuild
+----
+
+To release:
+
+tbd
