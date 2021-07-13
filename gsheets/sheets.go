@@ -1,3 +1,8 @@
+// gsheets is a package which provides utilities for manipulating (get and
+// update data, clear, sort) Google Sheets documents.
+// This can be more simple than using Google's API for common tasks (especially
+// for sending and receiving csv data to and from Sheets); for anything more
+// complicated use Google's golang sdk directly:
 // https://pkg.go.dev/google.golang.org/api@v0.50.0/sheets/v4
 package gsheets
 
@@ -26,7 +31,7 @@ type valueService interface {
 	BatchClear(string, *sheets.BatchClearValuesRequest) *sheets.SpreadsheetsValuesBatchClearCall
 }
 
-// Wrapper around both SpreadsheetsService and SpreadsheetsValuesService
+// Service is a wrapper around both SpreadsheetsService and SpreadsheetsValuesService
 type Service struct {
 	Sep    rune // record separator when [un]serializing csv
 	ctx    context.Context
@@ -34,7 +39,7 @@ type Service struct {
 	values valueService
 }
 
-// Create and wrap a new Service with the provided context
+// NewServiceWithCtx creates and wraps a new Service with the provided context
 func NewServiceWithCtx(ctx context.Context) (*Service, error) {
 	ssvc, err := sheets.NewService(ctx)
 	if err != nil {
@@ -48,12 +53,12 @@ func NewServiceWithCtx(ctx context.Context) (*Service, error) {
 	}, nil
 }
 
-// Get pointer to wrapped SpreadsheetsService
+// SpreadsheetsService returns a pointer to the wrapped SpreadsheetsService
 func (svc *Service) SpreadsheetsService() *sheets.SpreadsheetsService {
 	return svc.sheet.(*sheets.SpreadsheetsService)
 }
 
-// Create a new sheet on spreadsheet with 'id'
+// NewSheet creates a new sheet on spreadsheet identified by 'id'
 func (svc *Service) NewSheet(id, title string) error {
 	_, err := svc.sheet.BatchUpdate(id, &sheets.BatchUpdateSpreadsheetRequest{
 		Requests: []*sheets.Request{
@@ -69,9 +74,10 @@ func (svc *Service) NewSheet(id, title string) error {
 	return err
 }
 
-// Get the sheetID for the sheet with 'title' in spreadsheet 'id'
+// SheetFromTitle returns the sheetID for the sheet with 'title' in the
+// spreadsheet doc identified by 'id'.
 // If no error is encountered and no matching sheet is found, both return
-// values will be nil
+// values will be nil.
 func (svc *Service) SheetFromTitle(id, title string) (*int64, error) {
 	ss, err := svc.sheet.Get(id).Context(svc.ctx).Do()
 	if err != nil {
@@ -87,7 +93,8 @@ func (svc *Service) SheetFromTitle(id, title string) (*int64, error) {
 	return sheetId, nil
 }
 
-// Delete sheet with 'title' from spreadsheet with 'id'
+// DeleteSheet deletes the sheet with 'title' from spreadsheet doc identified
+// by 'id'
 func (svc *Service) DeleteSheet(id, title string) error {
 	// find sheet matching title
 	sheetId, err := svc.SheetFromTitle(id, title)
@@ -110,7 +117,8 @@ func (svc *Service) DeleteSheet(id, title string) error {
 	return err
 }
 
-// Get unformatted values in 'a1Range' from spreadsheet 'id'
+// GetRangeRaw gets unformatted values in 'a1Range' from the spreadsheet doc
+// identified by 'id'.
 // You must type switch the resulting [][]interface{} (outer slice is rows, inner
 // slice is value per column)
 // A1 syntax: https://developers.google.com/sheets/api/guides/concepts
@@ -127,9 +135,9 @@ func (svc *Service) GetRangeRaw(id string, a1Range string) ([][]interface{}, err
 	return resp.ValueRanges[0].Values, nil
 }
 
-// Get formatted values in 'a1Range' from spreadsheet 'id'
+// GetRangeFormatted gets formatted values in 'a1Range' from the spreadsheet
+// doc identified by 'id'.
 // All values are returned as strings, formatted as they display in the spreadsheet document
-// A1 syntax: https://developers.google.com/sheets/api/guides/concepts
 func (svc *Service) GetRangeFormatted(id string, a1Range string) ([][]string, error) {
 	resp, err := svc.values.BatchGet(id).
 		Context(svc.ctx).
@@ -156,7 +164,8 @@ func (svc *Service) GetRangeFormatted(id string, a1Range string) ([][]string, er
 	return stringVals, nil
 }
 
-// Return values in 'a1Range' from spreadsheet 'id' in csv format
+// GetRangeCSV returns values in 'a1Range' from the spreadsheet doc identified
+// by 'id' in csv format.
 func (svc *Service) GetRangeCSV(id, a1Range string) ([]byte, error) {
 	rows, err := svc.GetRangeFormatted(id, a1Range)
 	if err != nil {
@@ -174,9 +183,10 @@ func (svc *Service) GetRangeCSV(id, a1Range string) ([]byte, error) {
 	return buf.Bytes(), err
 }
 
-// Update values in 'a1Range' in spreadsheet 'id' to 'values'
-// each value in 'values' must be a string, float, int, or bool
-// and must fit within the dimensions of 'a1Range'
+// UpdateRangeRaw updates the values in 'a1Range' in the spreadsheet doc
+// identified by 'id' to 'values'.
+// Each value in 'values' must be a string, float, int, or bool and must fit
+// within the dimensions of 'a1Range'.
 func (svc *Service) UpdateRangeRaw(id, a1Range string, values [][]interface{}) (*sheets.UpdateValuesResponse, error) {
 
 	resp, err := svc.values.BatchUpdate(id, &sheets.BatchUpdateValuesRequest{
@@ -197,7 +207,8 @@ func (svc *Service) UpdateRangeRaw(id, a1Range string, values [][]interface{}) (
 	return resp.Responses[0], nil
 }
 
-// Update values in 'a1Range' in spreadsheet 'id' to 'values'
+// UpdateRangeStrings update values in 'a1Range' in the spreadsheet doc
+// identified by 'id' to 'values'.
 // Values will be parsed by Google Sheets as if they were typed in by the user
 // (so strings containing numerals may be converted to numbers, etc.)
 func (svc *Service) UpdateRangeStrings(id, a1Range string, values [][]string) (*sheets.UpdateValuesResponse, error) {
@@ -232,8 +243,9 @@ func (svc *Service) UpdateRangeStrings(id, a1Range string, values [][]string) (*
 	return resp.Responses[0], nil
 }
 
-// Update values in 'a1Range' in spreadsheet 'id' to 'values'
-// 'values' is an io.Reader which supplies csv data
+// UpdateRangeCSV update values in 'a1Range' in the spreadsheet doc identified
+// by 'id' to 'values'.
+// 'values' is an io.Reader which supplies text in csv format.
 // Values will be parsed by Google Sheets as if they were typed in by the user
 // (so strings containing numerals may be converted to numbers, etc.)
 func (svc *Service) UpdateRangeCSV(id, a1Range string, values io.Reader) (*sheets.UpdateValuesResponse, error) {
@@ -246,7 +258,8 @@ func (svc *Service) UpdateRangeCSV(id, a1Range string, values io.Reader) (*sheet
 	return svc.UpdateRangeStrings(id, a1Range, rows)
 }
 
-// Clear value of all 'a1Ranges' in spreadsheet 'id'
+// Clear clears the value of all 'a1Ranges' in the spreadsheet doc identified
+// by 'id'.
 func (svc *Service) Clear(id string, a1Ranges ...string) error {
 	_, err := svc.values.BatchClear(id, &sheets.BatchClearValuesRequest{
 		Ranges: a1Ranges,
@@ -254,7 +267,8 @@ func (svc *Service) Clear(id string, a1Ranges ...string) error {
 	return err
 }
 
-// Sort the sheet anmed 'name' on spreadsheet 'id' by 'column'
+// Sort sorts the sheet titled 'name' on the spreadsheet doc identified by 'id'
+// by 'column'.
 // If asc is true, sort ascending; otherwise sort descending
 // Column is the column index rather than A1 notation (0=A, 1=B, ...)
 func (svc *Service) Sort(id, name string, asc bool, column int64) error {

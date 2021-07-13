@@ -1,9 +1,9 @@
-// Utilities for manipulating (list, search, upload, download, delete) files on
-// Google Drive
-// Provides special handling for .csv files which it uploads as a Google Sheets
-// documents.
-// This can be more simple than using Google's API for common tasks; for
-// anything more complicated use Google's golang sdk directly:
+// gdrive is a package which provides utilities for manipulating (list, search,
+// upload, download, delete) files on Google Drive.
+// It has special handling for .csv files which it uploads as a Google Sheets
+// documents (and downloads the first visible sheet of Google Sheets documents
+// as .csv text) This can be more simple than using Google's API for common
+// tasks; for anything more complicated use Google's golang sdk directly:
 // https://pkg.go.dev/google.golang.org/api/drive/v3
 package gdrive
 
@@ -45,7 +45,8 @@ type Service struct {
 	filer driveFiler
 }
 
-// Create and wrap a new FilesService with the provided context
+// NewServiceWithCtx creates and wraps a new FilesService with the provided
+// context
 func NewServiceWithCtx(ctx context.Context) (*Service, error) {
 	gsvc, err := drive.NewService(ctx)
 	if err != nil {
@@ -57,12 +58,12 @@ func NewServiceWithCtx(ctx context.Context) (*Service, error) {
 	}, nil
 }
 
-// Get pointer to wrapped FilesService
+// FilesService returns a pointer to the wrapped FilesService
 func (svc *Service) FilesService() *drive.FilesService {
 	return svc.filer.(*drive.FilesService)
 }
 
-// Search all of user's files
+// Search searches all of the authenticated user's files.
 // 'q' is the search query as documented here:
 // https://developers.google.com/drive/api/v3/ref-search-terms
 func (svc *Service) Search(q string) ([]*drive.File, error) {
@@ -82,7 +83,7 @@ func (svc *Service) Search(q string) ([]*drive.File, error) {
 	return files, err
 }
 
-// Return a list of all files named 'name' in the 'parent' folder.
+// FilesNamed returns a list of all files named 'name' in the 'parent' folder.
 // If parent is empty, will return files from any files shared with user.
 // If no matching file is found, returns empty list and nil error
 // If an error is encountered it is returned along with any files that were
@@ -100,9 +101,10 @@ func escapeQuery(q string) string {
 	return strings.ReplaceAll(q, `'`, `\'`)
 }
 
-// Crete a new empty directory named 'name' in folder with id 'parent'.
-// 'name' should have no extension
-// If parent is empty, directory will be created in user's drive root.
+// CreateFolder creates a new empty directory named 'name' in folder with id
+// 'parent'.
+// If parent is empty, directory will be created in the authenticated user's
+// drive root.
 // (This will not overwrite any other files with the same name.)
 // https://developers.google.com/drive/api/v3/folder
 func (svc *Service) CreateFolder(name, parent string) (*drive.File, error) {
@@ -125,13 +127,14 @@ func typeByExtension(ext string) string {
 	return mime.TypeByExtension(ext)
 }
 
-// Create a new file named 'name' in folder with id 'parent' and content read
-// from 'src'.
+// CreateFile creats a new file named 'name' in folder with id 'parent' and
+// content read from 'src'.
 // If name has '.csv' extension, then the created file is converted to a Google
 // Sheets document on the drive.
 // If parent is empty, file will be created in user's drive root.
 // If 'src' is nil, creates an empty file.
 // (This will not overwrite any other files with the same name.)
+// https://developers.google.com/drive/api/v3/create-file
 func (svc *Service) CreateFile(name, parent string, src io.Reader) (*drive.File, error) {
 	ext := filepath.Ext(name)
 	mime := typeByExtension(ext)
@@ -150,9 +153,9 @@ func (svc *Service) CreateFile(name, parent string, src io.Reader) (*drive.File,
 	return createCall.Do()
 }
 
-// If a file named 'name' exists in the folder with id 'parent', then replace
-// its content with data read from 'src'
-// Otherwise create it as a new file
+// CreateOrUpdateFile creates a new file named 'name' (with contents of 'src')
+// if it does not already exist in 'parent'; otherwise it replaces the contents
+// of the existing file.
 func (svc *Service) CreateOrUpdateFile(name, parent string,
 	src io.Reader) (*drive.File, error) {
 	var file *drive.File
@@ -182,8 +185,8 @@ func (svc *Service) CreateOrUpdateFile(name, parent string,
 	return file, err
 }
 
-// Overwrite an existing drive file (id) with name and content read from src
-// Name should be the desired file name INCLUDING extension
+// UpdateFile replaces an existing drive file (id) the contents read from 'src'
+// and updates its name to 'name'
 func (svc *Service) UpdateFile(id, name string, src io.Reader) (*drive.File, error) {
 	updateCall := svc.filer.Update(id, &drive.File{})
 	if src != nil {
@@ -193,13 +196,15 @@ func (svc *Service) UpdateFile(id, name string, src io.Reader) (*drive.File, err
 	return updateCall.Do()
 }
 
-// Return all metadata for file with 'id'
+// GetInfo returns all metadata for the file identified by 'id'
 func (svc *Service) GetInfo(id string) (*drive.File, error) {
 	return svc.filer.Get(id).Fields("*").Do()
 }
 
-// Return the http.Response for downloading the contents of file with 'id'
-// If file is a Google Workspace file we try to export it as text
+// Downloadfile returns a http.Response for downloading the contents of file
+// identified by 'id'.
+// If file is a Google Workspace file it is exported as a text format.
+// https://developers.google.com/drive/api/v3/manage-downloads
 func (svc *Service) DownloadFile(id string) (*http.Response, error) {
 	var dlFunc func(...googleapi.CallOption) (*http.Response, error)
 	getCall := svc.filer.Get(id)
@@ -223,7 +228,8 @@ func (svc *Service) DownloadFile(id string) (*http.Response, error) {
 	return dlFunc()
 }
 
-// Returns the contents of file with 'id'
+// FileContents downloads and returns the contents of the file identified by
+// 'id'
 func (svc *Service) FileContents(id string) ([]byte, error) {
 	resp, err := svc.DownloadFile(id)
 	if err != nil {
@@ -233,7 +239,7 @@ func (svc *Service) FileContents(id string) ([]byte, error) {
 	return ioutil.ReadAll(resp.Body)
 }
 
-// Delete file with the given id
+// DeleteFile deletes file identified by 'id'
 func (svc *Service) DeleteFile(id string) error {
 	return svc.filer.Delete(id).Do()
 }
