@@ -45,8 +45,6 @@ My typical workflow is to create a Sheet using Google's web interface, set up th
 
 == Installation
 
-NOTE: I will update this README with installation and usage instructions when I think it is ready to be used by other people.
-
 `gsheet` is not yet packaged for any package manager yet (let me know if you can help with that!), but you can download binaries for major platforms from https://github.com/cristoper/gsheet/releases[the Releases page].
 
 Otherwise, if you have Go installed you can:
