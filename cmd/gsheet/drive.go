@@ -11,7 +11,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func DeleteAction(c *cli.Context) error {
+func deleteAction(c *cli.Context) error {
 	if c.NArg() < 1 {
 		return errors.New("Missing FILE_ID")
 	}
@@ -25,7 +25,7 @@ func DeleteAction(c *cli.Context) error {
 	return nil
 }
 
-func CreateFolderAction(c *cli.Context) error {
+func createFolderAction(c *cli.Context) error {
 	if c.NArg() < 1 {
 		return errors.New("NAME is required")
 	}
@@ -37,7 +37,7 @@ func CreateFolderAction(c *cli.Context) error {
 	return err
 }
 
-func DownloadAction(c *cli.Context) error {
+func downloadAction(c *cli.Context) error {
 	if c.NArg() < 1 {
 		return errors.New("FILE_ID is required")
 	}
@@ -50,7 +50,7 @@ func DownloadAction(c *cli.Context) error {
 	return nil
 }
 
-func InfoAction(c *cli.Context) error {
+func infoAction(c *cli.Context) error {
 	if c.NArg() < 1 {
 		return errors.New("FILE_ID is required")
 	}
@@ -67,7 +67,7 @@ func InfoAction(c *cli.Context) error {
 	return nil
 }
 
-func UploadAction(c *cli.Context) error {
+func uploadAction(c *cli.Context) error {
 	var inFile io.ReadCloser = nil
 	var name string
 	if c.IsSet("name") {
@@ -102,7 +102,7 @@ func UploadAction(c *cli.Context) error {
 	return nil
 }
 
-func ListAction(c *cli.Context) error {
+func listAction(c *cli.Context) error {
 	var q string
 	p := c.String("parent")
 	if p != "" {

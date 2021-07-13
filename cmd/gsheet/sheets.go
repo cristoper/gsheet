@@ -8,24 +8,24 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func NewSheetAction(c *cli.Context) error {
+func newSheetAction(c *cli.Context) error {
 	return sheetSvc.NewSheet(c.String("id"), c.String("name"))
 }
 
-func DeleteSheetAction(c *cli.Context) error {
+func deleteSheetAction(c *cli.Context) error {
 	return sheetSvc.DeleteSheet(c.String("id"), c.String("name"))
 }
 
-func ClearSheetAction(c *cli.Context) error {
+func clearSheetAction(c *cli.Context) error {
 	return sheetSvc.Clear(c.String("id"), c.StringSlice("range")...)
 }
 
-func SortSheetAction(c *cli.Context) error {
+func sortSheetAction(c *cli.Context) error {
 	return sheetSvc.Sort(c.String("id"), c.String("name"), c.Bool("ascending"),
 		c.Int64("column"))
 }
 
-func RangeSheetAction(c *cli.Context) error {
+func rangeSheetAction(c *cli.Context) error {
 	info, err := os.Stdin.Stat()
 	if err != nil {
 		return err

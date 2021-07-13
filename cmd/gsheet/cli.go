@@ -18,7 +18,7 @@ var app = &cli.App{
 		{
 			Name:     "csv",
 			Usage:    "Pipe csv data to range or read it from range",
-			Action:   RangeSheetAction,
+			Action:   rangeSheetAction,
 			Category: "Sheets",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
@@ -40,7 +40,7 @@ var app = &cli.App{
 		{
 			Name:     "clear",
 			Usage:    "Clear all values from given range",
-			Action:   ClearSheetAction,
+			Action:   clearSheetAction,
 			Category: "Sheets",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
@@ -57,7 +57,7 @@ var app = &cli.App{
 		{
 			Name:     "newSheet",
 			Usage:    "Create a new sheet",
-			Action:   NewSheetAction,
+			Action:   newSheetAction,
 			Category: "Sheets",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
@@ -75,7 +75,7 @@ var app = &cli.App{
 		{
 			Name:     "deleteSheet",
 			Usage:    "Delete the named sheet",
-			Action:   DeleteSheetAction,
+			Action:   deleteSheetAction,
 			Category: "Sheets",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
@@ -92,7 +92,7 @@ var app = &cli.App{
 		{
 			Name:     "sort",
 			Usage:    "Sort a sheet by column(s)",
-			Action:   SortSheetAction,
+			Action:   sortSheetAction,
 			Category: "Sheets",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
@@ -124,7 +124,7 @@ var app = &cli.App{
 			Name:      "createFolder",
 			Usage:     "Creates a new folder",
 			ArgsUsage: "NAME",
-			Action:    CreateFolderAction,
+			Action:    createFolderAction,
 			Category:  "Files",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
@@ -139,13 +139,13 @@ var app = &cli.App{
 			Name:      "delete",
 			Usage:     "Delete file(s) from drive (careful, does not trash them!)",
 			ArgsUsage: "FILE_ID [FILE_ID...]",
-			Action:    DeleteAction,
+			Action:    deleteAction,
 			Category:  "Files",
 		},
 		{
 			Name:     "list",
 			Usage:    "List file names and ids",
-			Action:   ListAction,
+			Action:   listAction,
 			Category: "Files",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
@@ -158,7 +158,7 @@ var app = &cli.App{
 		{
 			Name:      "upload",
 			Usage:     "Upload a file to Google Drive.",
-			Action:    UploadAction,
+			Action:    uploadAction,
 			ArgsUsage: "[FILE]",
 			Category:  "Files",
 			Flags: []cli.Flag{
@@ -178,14 +178,14 @@ var app = &cli.App{
 		{
 			Name:      "download",
 			Usage:     "Download a file from google drive and send it to stdout",
-			Action:    DownloadAction,
+			Action:    downloadAction,
 			ArgsUsage: "FILE_ID",
 			Category:  "Files",
 		},
 		{
 			Name:      "info",
 			Usage:     "Dump all file's metadata as json to stdout",
-			Action:    InfoAction,
+			Action:    infoAction,
 			ArgsUsage: "FILE_ID",
 			Category:  "Files",
 		},
