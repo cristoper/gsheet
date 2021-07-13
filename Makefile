@@ -15,7 +15,7 @@ test:
 .PHONY: xbuild
 xbuild:
 	for platform in ${platforms}; do
-		pair=$${platform/_/ }
-		GOARCH=${pair[1]} GOOS=${pair[0]} go build -ldflags '-s -w -X main.version=${version}' -o build/$$platform/gsheet ./cmd/gsheet/
-		zip -r build/$${platform}.zip build/$${platform}/
+		pair=($${platform/_/ })
+		GOARCH=$${pair[1]} GOOS=$${pair[0]} go build -ldflags '-s -w -X main.version=${version}' -o build/$$platform/gsheet ./cmd/gsheet/
+		zip -j -r build/$${platform}.zip build/$${platform}/
 	done
