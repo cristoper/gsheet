@@ -209,6 +209,11 @@ In addition to the cli tool, `gsheet` can be used as a Golang package to simplif
 
 All of the Sheets related functions are in the `gsheets` pacakge (`gsheets/sheets.go`), and all of the Drive related functions are in the `gdrive` pacakge (`gdrive/files.go`).
 
+Online godoc documentation for the packages can be found here:
+
+- https://pkg.go.dev/github.com/cristoper/gsheet@v0.1.0/gdrive
+- https://pkg.go.dev/github.com/cristoper/gsheet@v0.1.0/gsheets
+
 For a quick-and-dirty example of how to use the packages look at the `integration_test.go` file included in each package.
 
 == Hack
