@@ -1,5 +1,5 @@
-// gdrive is a package which provides utilities for manipulating (list, search,
-// upload, download, delete) files on Google Drive.
+// Package gdrive is a package which provides utilities for manipulating (list,
+// search, upload, download, delete) files on Google Drive.
 // It has special handling for .csv files which it uploads as a Google Sheets
 // documents (and downloads the first visible sheet of Google Sheets documents
 // as .csv text) This can be more simple than using Google's API for common

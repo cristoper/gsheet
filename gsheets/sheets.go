@@ -1,5 +1,5 @@
-// gsheets is a package which provides utilities for manipulating (get and
-// update data, clear, sort) Google Sheets documents.
+// Package gsheets is a package which provides utilities for manipulating (get
+// and update data, clear, sort) Google Sheets documents.
 // This can be more simple than using Google's API for common tasks (especially
 // for sending and receiving csv data to and from Sheets); for anything more
 // complicated use Google's golang sdk directly:
