@@ -39,7 +39,7 @@ type driveFiler interface {
 	Update(fileId string, file *drive.File) *drive.FilesUpdateCall
 }
 
-// Wrapper around drive.FilesService
+// Service wraps drive.FilesService
 type Service struct {
 	ctx   context.Context
 	filer driveFiler
@@ -201,7 +201,7 @@ func (svc *Service) GetInfo(id string) (*drive.File, error) {
 	return svc.filer.Get(id).Fields("*").Do()
 }
 
-// Downloadfile returns a http.Response for downloading the contents of file
+// DownloadFile returns a http.Response for downloading the contents of file
 // identified by 'id'.
 // If file is a Google Workspace file it is exported as a text format.
 // https://developers.google.com/drive/api/v3/manage-downloads
