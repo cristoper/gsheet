@@ -14,7 +14,7 @@ With `gsheet` you can:
 - Pipe csv data from stdin to a Google Sheet range +
 `cat data.csv | gsheet csv --id 1o88FhvAXg8Q_ZMFudQLuZ1ShsigbAgJ --range 'Sheet1'`
 - Pipe csv data from a Google Sheet range to stdout +
-`gsheet csv --id 1o88FhvAXg8Q_ZMFudQLuZ1ShsigbAgJ --range "'Sheet'!A1:D20" > data.csv`
+`gsheet csv --id 1o88FhvAXg8Q_ZMFudQLuZ1ShsigbAgJ --range "'Sheet!'A1:D20" > data.csv`
 - Clear a Google Sheet range +
 `gsheet clear --id 1o88FhvAXg8Q_ZMFudQLuZ1ShsigbAgJ --range Sheet2`
 - Create and delete sheets of a Spreadsheet document +
@@ -62,7 +62,7 @@ cd gsheet
 go install ./cmd/gsheet
 ----
 
-However, either way will pull in the build dependencies (Google's API SDKs) which are big (200MB+) so can be slow to download.
+However, building from source will pull in the build dependencies (Google's API SDKs) which are big (200MB+) so can be slow to download.
 
 [#auth]
 == Authentication and Authorization
@@ -87,6 +87,142 @@ However, if an OAuth workflow (where you can authenticate `gsheet` using your ow
 [#usage]
 == CLI Usage
 
+To get an overview of all the commands provided by `gsheet` run:
+
+[source,sh]
+gsheet help
+
+You can also run `gsheet help CMD` to get help for each command.
+Below are some further usage hints.
+
+Remember that for any of the commands to work you must have the GOOGLE_APPLICATION_CREDENTIALS environment variable set to a path containing the service account credentials in a .json file.
+
+=== Sheet commands
+==== csv and clear
+
+The `csv` command is the heart of `gsheet`. If you pipe csv data to it on std input, it sends the data to the specified range of the Sheets document identified by the `--id` flag. If you don't connect stdin to a pipe, then it will read the specified range and output it to stdout in csv format.
+
+NOTE: `csv` does not clear the range before updating data in a Sheets document. If the piped data is smaller (fewer rows or columns) than the specified range, then any pre-existing data in the spreadsheet will remain after the update. Use `gsheet clear` to clear a range.
+
+[source,sh]
+----
+# Replace an entire sheet of a Spreadsheet doc with the contents of data.csv
+gsheet --id SHEETS_DOC_ID clear --range Sheet1
+cat data.csv | gsheet --id SHEETS_DOC_ID --range Sheet1
+
+# Read a specific range of a sheet to output.csv
+# (You can always single quote sheet names and include the exclamation point in
+# the single quotes so that the shell doesn't try to interpret it.)
+gsheet --id SHEETS_DOC_ID --range 'Sheet1!'A2:C5 > output.csv
+----
+
+==== sort
+
+An existing sheet can be sorted by any (single) column in either descending (default) or ascending order:
+
+[source,sh]
+----
+# Sort sheet by B coloumn in ascending order
+sort --id SHEET_NAME -name Sheet1 --column=1 --asc
+----
+
+==== newSheet and deleteSheet
+
+These commands simply create and delete sheets from a spreadsheet document. The new sheets appear after all other visible sheets.
+
+NOTE: sheets are deleted by name (the title of the sheet) and not by id; this is a bit fragile because if a user changes the title of a sheet in Google Docs then a script depending on `gsheet deleteSheet` may break.
+
+[source,sh]
+----
+# After running this you should see a new sheet called "SHEET_NAME" in the
+# spreadsheet with id "SHEETS_DOC_ID"
+gsheet newSheet --id SHEETS_DOC_ID --name SHEET_NAME
+
+# After running this it should be gone again
+gsheet deleteSheet --id SHEETS_DOC_ID --name SHEET_NAME
+----
+
+=== Drive commands
+
+==== upload and download
+
+The `upload` and `download` commands can be used to upload and download arbitrary files to Google Drive. They provide special handling for .csv files: uploading a .csv file will import it to Google Drive as a Sheets document, and downloading a Sheets document will export the first visible sheet as a .csv file.
+
+Downloading any other Google Workspace document types will attempt to export them as plain text files.
+
+[source,sh]
+----
+# Upload data.csv as a Sheets document in the service account's root directory
+gsheet upload --parent root data.csv
+
+# Download an image from drive
+# Note that download takes a single positional argument: the id of the google
+# drive file to download, and it sends its output to stdout.
+gsheet download DRIVE_DOC_ID > image.png
+----
+
+==== delete
+
+The `delete` command can be used to delete one or more files by id (list each id as a positional argument). Outputs a confirmation as each file is deleted.
+
+NOTE: delete immediately deletes a file and does not move it to the trash.
+
+==== list
+
+[source,sh]
+----
+# List all files and their ids that are in the service account's root folder
+gsheet list --parent root
+----
+
+==== createFolder
+
+Sometimes it is nice if a script can create a new folder to keep all of its own files in. The output of the `createFolder` command includes the id of the created folder.
+
+[source,sh]
+----
+# Create a foler in service account's root (specify --parent to use a different
+# folder)
+$ gsheet createFolder FOLDER_NAME
+Created directory named FOLDER_NAME with id 1ApMOHtZtTVM_UU7HyUCvMIIa3R5fDf6N
+----
+
+=== Ranges
+
+The `csv` and other commands make use of ranges in A1 notation. Examples of A1 notation can be found in the Google documentation here:
+
+https://developers.google.com/sheets/api/guides/concepts
+
+=== Finding document and parent IDs
+
+Many of the commands operate on the Google Drive ID of a document or a "parent" folder. A convenient way to get these IDs is to just use a web browser and open a file or folder on https://drive.google.com/ to see the ID in the URL. But you can also use `gsheet list` to list all of the files and folders the service account knows about along with their IDs.
+
+=== Environment Variables
+
+GOOGLE_APPLICATION_CREDENTIALS:: Must be set to the absolute path of a .json file containing credentials for a service account
+
+GSHEET_ID:: Can be set instead of setting the `--id` flag on any command that accepts that flag to identify a spreadsheet document to operate on
+
+GSHEET_PARENT:: Can be set instead of setting the `--parent` flag on any command that accepts that flag to identify a drive folder to operate on
+
 == Use as Golang Package
 
+In addition to the cli tool, `gsheet` can be used as a Golang package to simplify access to Google Sheets and Google Drive from Go.
+
+All of the Sheets related functions are in the `gsheets` pacakge (`gsheets/sheets.go`), and all of the Drive related functions are in the `gdrive` pacakge (`gdrive/files.go`).
+
+For a quick-and-dirty example of how to use the packages look at the `integration_test.go` file included in each package.
+
 == Hack
+
+To run tests:
+
+----
+go test ./...
+----
+
+To build:
+
+----
+go build ./cmd/gsheet/
+----

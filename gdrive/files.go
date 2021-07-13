@@ -1,7 +1,7 @@
-// Utilities for manipulating (search, create, update, delete) files on Google
-// Drive
+// Utilities for manipulating (list, search, upload, download, delete) files on
+// Google Drive
 // Provides special handling for .csv files which it uploads as a Google Sheets
-// document.
+// documents.
 // This can be more simple than using Google's API for common tasks; for
 // anything more complicated use Google's golang sdk directly:
 // https://pkg.go.dev/google.golang.org/api/drive/v3
