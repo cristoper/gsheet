@@ -278,7 +278,7 @@ func (svc *Service) Sort(id, name string, asc bool, column int64) error {
 	}
 
 	if sheetId == nil {
-		return errors.New(fmt.Sprintf("No sheet titled %s found", name))
+		return fmt.Errorf("No sheet titled %s found", name)
 	}
 
 	order := "DESCENDING"
