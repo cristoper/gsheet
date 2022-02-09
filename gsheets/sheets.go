@@ -250,6 +250,7 @@ func (svc *Service) UpdateRangeStrings(id, a1Range string, values [][]string) (*
 // (so strings containing numerals may be converted to numbers, etc.)
 func (svc *Service) UpdateRangeCSV(id, a1Range string, values io.Reader) (*sheets.UpdateValuesResponse, error) {
 	csvR := csv.NewReader(values)
+	csvR.FieldsPerRecord = -1 // disable field checks
 	csvR.Comma = svc.Sep
 	rows, err := csvR.ReadAll()
 	if err != nil {
