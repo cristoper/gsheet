@@ -60,6 +60,9 @@ func (svc *Service) SpreadsheetsService() *sheets.SpreadsheetsService {
 
 // NewSheet creates a new sheet on spreadsheet identified by 'id'
 func (svc *Service) NewSheet(id, title string) error {
+    if id == "" {
+        return errors.New("id cannot be empty")
+    }
 	_, err := svc.sheet.BatchUpdate(id, &sheets.BatchUpdateSpreadsheetRequest{
 		Requests: []*sheets.Request{
 			&sheets.Request{
@@ -96,6 +99,9 @@ func (svc *Service) SheetFromTitle(id, title string) (*int64, error) {
 // DeleteSheet deletes the sheet with 'title' from spreadsheet doc identified
 // by 'id'
 func (svc *Service) DeleteSheet(id, title string) error {
+    if id == "" {
+        return errors.New("id cannot be empty")
+    }
 	// find sheet matching title
 	sheetId, err := svc.SheetFromTitle(id, title)
 	if err != nil {

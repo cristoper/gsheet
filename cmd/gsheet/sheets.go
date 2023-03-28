@@ -9,10 +9,16 @@ import (
 )
 
 func newSheetAction(c *cli.Context) error {
+    if c.String("id") == "" {
+        return fmt.Errorf("The --id flag is required")
+    }
 	return sheetSvc.NewSheet(c.String("id"), c.String("name"))
 }
 
 func deleteSheetAction(c *cli.Context) error {
+    if c.String("id") == "" {
+        return fmt.Errorf("The --id flag is required")
+    }
 	return sheetSvc.DeleteSheet(c.String("id"), c.String("name"))
 }
 
