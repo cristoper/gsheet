@@ -148,6 +148,8 @@ The `upload` and `download` commands can be used to upload and download arbitrar
 
 Downloading any other Google Workspace document types will attempt to export them as plain text files.
 
+Not that using `upload` without giving it a parent id with `--parent` (or setting the `GSHEET_PARENT` envar) will cause it to upload the file to the service account's root folder where it is not accessible to humans via Google Drive.
+
 [source,sh]
 ----
 # Upload data.csv as a Sheets document in the service account's root directory
