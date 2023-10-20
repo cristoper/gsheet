@@ -30,6 +30,10 @@ var app = &cli.App{
 					Name:  "range",
 					Usage: "Sheet range to update or get (A1 notation)",
 				},
+                &cli.BoolFlag{
+                    Name: "append",
+                    Usage: "If set, append to end of any data in range",
+                },
 				&cli.StringFlag{
 					Name:  "sep",
 					Value: ",",

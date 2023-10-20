@@ -51,6 +51,7 @@ func TestSheetIntegration(t *testing.T) {
 	// - (Create new spreadsheet with drive package)
 	// - Create new sheet
 	// - Update data in sheet via csv
+    // - Append data to sheet
 	// - Clear sheet
 	// - Delete sheet
 	// - (Use drive package to delete document)
@@ -98,6 +99,25 @@ func TestSheetIntegration(t *testing.T) {
 	}
 	if strings.ReplaceAll(string(vals), "\n", "") !=
 		strings.ReplaceAll(testData, "\n", "") {
+		t.Log("Updated data does not match test data")
+		t.Log(vals, []byte(testData))
+		t.Fail()
+	}
+
+    // test append
+    appendResp, err := svcSheet.AppendRangeCSV(testfile.Id, "TEST", strings.NewReader(testData))
+    if err != nil {
+        t.Fatal(err)
+    }
+    if appendResp.Updates.UpdatedCells != 12 {
+        t.Fatal("Unexpected number of cells updated")
+    }
+	vals, err = svcSheet.GetRangeCSV(testfile.Id, "TEST")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.ReplaceAll(string(vals), "\n", "") !=
+		strings.ReplaceAll(testData + testData, "\n", "") {
 		t.Log("Updated data does not match test data")
 		t.Log(vals, []byte(testData))
 		t.Fail()

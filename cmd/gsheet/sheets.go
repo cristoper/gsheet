@@ -9,16 +9,16 @@ import (
 )
 
 func newSheetAction(c *cli.Context) error {
-    if c.String("id") == "" {
-        return fmt.Errorf("The --id flag is required")
-    }
+	if c.String("id") == "" {
+		return fmt.Errorf("The --id flag is required")
+	}
 	return sheetSvc.NewSheet(c.String("id"), c.String("name"))
 }
 
 func deleteSheetAction(c *cli.Context) error {
-    if c.String("id") == "" {
-        return fmt.Errorf("The --id flag is required")
-    }
+	if c.String("id") == "" {
+		return fmt.Errorf("The --id flag is required")
+	}
 	return sheetSvc.DeleteSheet(c.String("id"), c.String("name"))
 }
 
@@ -56,11 +56,21 @@ func rangeSheetAction(c *cli.Context) error {
 	} else {
 		// otherwise stdin is connected to a pipe or file
 		// send data
-		resp, err := sheetSvc.UpdateRangeCSV(c.String("id"), c.String("range"), os.Stdin)
-		if err != nil {
-			return err
+		if c.Bool("append") {
+			// append
+			resp, err := sheetSvc.AppendRangeCSV(c.String("id"), c.String("range"), os.Stdin)
+			if err != nil {
+				return err
+			}
+			fmt.Printf("Updated %d cells\n", resp.Updates.UpdatedCells)
+		} else {
+			// overwrite
+			resp, err := sheetSvc.UpdateRangeCSV(c.String("id"), c.String("range"), os.Stdin)
+			if err != nil {
+				return err
+			}
+			fmt.Printf("Updated %d cells\n", resp.UpdatedCells)
 		}
-		fmt.Printf("Updated %d cells\n", resp.UpdatedCells)
 	}
 	return nil
 }

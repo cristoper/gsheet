@@ -26,6 +26,7 @@ type ssService interface {
 
 // Define an interface so we can mock the SpreadsheetsValuesService if we need to
 type valueService interface {
+	Append(string, string, *sheets.ValueRange) *sheets.SpreadsheetsValuesAppendCall
 	BatchGet(string) *sheets.SpreadsheetsValuesBatchGetCall
 	BatchUpdate(string, *sheets.BatchUpdateValuesRequest) *sheets.SpreadsheetsValuesBatchUpdateCall
 	BatchClear(string, *sheets.BatchClearValuesRequest) *sheets.SpreadsheetsValuesBatchClearCall
@@ -60,9 +61,9 @@ func (svc *Service) SpreadsheetsService() *sheets.SpreadsheetsService {
 
 // NewSheet creates a new sheet on spreadsheet identified by 'id'
 func (svc *Service) NewSheet(id, title string) error {
-    if id == "" {
-        return errors.New("id cannot be empty")
-    }
+	if id == "" {
+		return errors.New("id cannot be empty")
+	}
 	_, err := svc.sheet.BatchUpdate(id, &sheets.BatchUpdateSpreadsheetRequest{
 		Requests: []*sheets.Request{
 			&sheets.Request{
@@ -99,9 +100,9 @@ func (svc *Service) SheetFromTitle(id, title string) (*int64, error) {
 // DeleteSheet deletes the sheet with 'title' from spreadsheet doc identified
 // by 'id'
 func (svc *Service) DeleteSheet(id, title string) error {
-    if id == "" {
-        return errors.New("id cannot be empty")
-    }
+	if id == "" {
+		return errors.New("id cannot be empty")
+	}
 	// find sheet matching title
 	sheetId, err := svc.SheetFromTitle(id, title)
 	if err != nil {
@@ -213,12 +214,8 @@ func (svc *Service) UpdateRangeRaw(id, a1Range string, values [][]interface{}) (
 	return resp.Responses[0], nil
 }
 
-// UpdateRangeStrings update values in 'a1Range' in the spreadsheet doc
-// identified by 'id' to 'values'.
-// Values will be parsed by Google Sheets as if they were typed in by the user
-// (so strings containing numerals may be converted to numbers, etc.)
-func (svc *Service) UpdateRangeStrings(id, a1Range string, values [][]string) (*sheets.UpdateValuesResponse, error) {
-
+// cast [][]string to [][]interface{} for passing csv data to Google Sheets
+func strToInterface(values [][]string) [][]interface{} {
 	// make a [][]interface{} to hold typecast values
 	var vals = make([][]interface{}, len(values))
 	for i := range vals {
@@ -230,10 +227,59 @@ func (svc *Service) UpdateRangeStrings(id, a1Range string, values [][]string) (*
 			vals[r][c] = v
 		}
 	}
+	return vals
+}
+
+// AppendRangeStrings appends 'values' to any table found in 'a1Range' in the
+// spreadsheet doc identified by 'id'
+// Values will be parsed by Google Sheets as if they were typed in by the user
+// (so strings containing numerals may be converted to numbers, etc.)
+// see: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/append
+func (svc *Service) AppendRangeStrings(id, a1Range string, values [][]string) (*sheets.AppendValuesResponse, error) {
+
+	// cast strings to interfaces
+	vals := strToInterface(values)
+
+	resp, err := svc.values.Append(id, a1Range, &sheets.ValueRange{
+		Values: vals,
+	}).
+        ValueInputOption("USER_ENTERED").
+        Context(svc.ctx).
+        Do()
+    if err != nil {
+        return nil, err
+    }
+	return resp, nil
+}
+
+// AppendRangeCSV appends 'values' to any table found in 'a1Range' in the
+// spreadsheet doc identified by 'id'
+// 'values' is an io.Reader which supplies text in csv format.
+// Values will be parsed by Google Sheets as if they were typed in by the user
+// (so strings containing numerals may be converted to numbers, etc.)
+func (svc *Service) AppendRangeCSV(id, a1Range string, values io.Reader) (*sheets.AppendValuesResponse, error) {
+	csvR := csv.NewReader(values)
+	csvR.FieldsPerRecord = -1 // disable field checks
+	csvR.Comma = svc.Sep
+	rows, err := csvR.ReadAll()
+	if err != nil {
+		return nil, err
+	}
+	return svc.AppendRangeStrings(id, a1Range, rows)
+}
+
+// UpdateRangeStrings update values in 'a1Range' in the spreadsheet doc
+// identified by 'id' to 'values'.
+// Values will be parsed by Google Sheets as if they were typed in by the user
+// (so strings containing numerals may be converted to numbers, etc.)
+func (svc *Service) UpdateRangeStrings(id, a1Range string, values [][]string) (*sheets.UpdateValuesResponse, error) {
+
+	// cast strings to interfaces
+	vals := strToInterface(values)
 
 	resp, err := svc.values.BatchUpdate(id, &sheets.BatchUpdateValuesRequest{
 		Data: []*sheets.ValueRange{
-			&sheets.ValueRange{
+			{
 				MajorDimension: "ROWS",
 				Range:          a1Range,
 				Values:         vals,
