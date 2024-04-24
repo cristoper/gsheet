@@ -37,6 +37,14 @@ func rangeSheetAction(c *cli.Context) error {
 		return err
 	}
 
+	outInfo, err := os.Stdout.Stat()
+	if err != nil {
+		return err
+	}
+
+	inTty := info.Mode()&os.ModeCharDevice > 0
+	outTty := outInfo.Mode()&os.ModeCharDevice > 0
+
 	// Set sep based on --sep flag, parsing escape sequences like \t into a rune
 	sep, err := strconv.Unquote(`"` + c.String("sep") + `"`)
 	if err != nil || len(sep) == 0 {
@@ -45,7 +53,10 @@ func rangeSheetAction(c *cli.Context) error {
 	}
 	sheetSvc.Sep = rune(sep[0])
 
-	if info.Mode()&os.ModeCharDevice > 0 {
+	// if stdin is connected to a tty
+	// or if neither stdin nor stdout are connected to a tty and there is no
+	// stdin data to read (like when run from cron)
+	if inTty || (!inTty && !outTty && info.Size() == 0) {
 		// stdin is not connected to a pipe or file
 		// get data
 		vals, err := sheetSvc.GetRangeCSV(c.String("id"), c.String("range"))
