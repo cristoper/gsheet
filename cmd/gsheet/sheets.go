@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -20,6 +22,23 @@ func deleteSheetAction(c *cli.Context) error {
 		return fmt.Errorf("The --id flag is required")
 	}
 	return sheetSvc.DeleteSheet(c.String("id"), c.String("name"))
+}
+
+func sheetInfoAction(c *cli.Context) error {
+	if c.NArg() < 1 {
+		return errors.New("SHEET_ID is required")
+	}
+	id := c.Args().Get(0)
+    info, err := sheetSvc.SpreadsheetsService().Get(id).Do()
+    if err != nil {
+        return err
+    }
+	jsonBytes, err := json.MarshalIndent(info, "", "  ")
+	if err != nil {
+		return err
+	}
+	fmt.Fprint(c.App.Writer, string(jsonBytes))
+    return nil
 }
 
 func clearSheetAction(c *cli.Context) error {

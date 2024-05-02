@@ -30,16 +30,23 @@ var app = &cli.App{
 					Name:  "range",
 					Usage: "Sheet range to update or get (A1 notation)",
 				},
-                &cli.BoolFlag{
-                    Name: "append",
-                    Usage: "If set, append to end of any data in range",
-                },
+				&cli.BoolFlag{
+					Name:  "append",
+					Usage: "If set, append to end of any data in range",
+				},
 				&cli.StringFlag{
 					Name:  "sep",
 					Value: ",",
 					Usage: `Record separator (use '\t' for tab)`,
 				},
 			},
+		},
+		{
+			Name:      "sheetInfo",
+			Usage:     "Dump info about the spreadsheet as json",
+			Action:    sheetInfoAction,
+			Category:  "Sheets",
+			ArgsUsage: "SHEET_ID",
 		},
 		{
 			Name:     "clear",
