@@ -42,6 +42,23 @@ var app = &cli.App{
 			},
 		},
 		{
+			Name:     "title",
+			Usage:    "Get the title of a sheet by its id",
+			Action:   titleByIdAction,
+			Category: "Sheets",
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:    "id",
+					Usage:   "id of the spreadsheet document",
+					EnvVars: []string{"GSHEET_ID"},
+				},
+				&cli.Int64Flag{
+					Name:  "sheetid",
+					Usage: "id of the sheet to get the title of",
+				},
+			},
+		},
+		{
 			Name:      "sheetInfo",
 			Usage:     "Dump info about the spreadsheet as json",
 			Action:    sheetInfoAction,
