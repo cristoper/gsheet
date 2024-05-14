@@ -30,16 +30,40 @@ var app = &cli.App{
 					Name:  "range",
 					Usage: "Sheet range to update or get (A1 notation)",
 				},
-                &cli.BoolFlag{
-                    Name: "append",
-                    Usage: "If set, append to end of any data in range",
-                },
+				&cli.BoolFlag{
+					Name:  "append",
+					Usage: "If set, append to end of any data in range",
+				},
 				&cli.StringFlag{
 					Name:  "sep",
 					Value: ",",
 					Usage: `Record separator (use '\t' for tab)`,
 				},
 			},
+		},
+		{
+			Name:     "title",
+			Usage:    "Get the title of a sheet by its id",
+			Action:   titleByIdAction,
+			Category: "Sheets",
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:    "id",
+					Usage:   "id of the spreadsheet document",
+					EnvVars: []string{"GSHEET_ID"},
+				},
+				&cli.Int64Flag{
+					Name:  "sheetid",
+					Usage: "id of the sheet to get the title of",
+				},
+			},
+		},
+		{
+			Name:      "sheetInfo",
+			Usage:     "Dump info about the spreadsheet as json",
+			Action:    sheetInfoAction,
+			Category:  "Sheets",
+			ArgsUsage: "SHEET_ID",
 		},
 		{
 			Name:     "clear",

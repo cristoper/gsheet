@@ -97,6 +97,25 @@ func (svc *Service) SheetFromTitle(id, title string) (*int64, error) {
 	return sheetId, nil
 }
 
+// TitleFromSheetId returns the sheet title for the given 'sheetId'
+// If no error is encountered and no matching sheet is found, both return
+// values will be nil.
+func (svc *Service) TitleFromSheetId(id string, sheetId int64) (*string, error) {
+	ss, err := svc.sheet.Get(id).Context(svc.ctx).Do()
+	if err != nil {
+		return nil, err
+	}
+
+	var sheetTitle *string
+	for _, sheet := range ss.Sheets {
+		if sheet.Properties.SheetId == sheetId {
+			sheetTitle = &sheet.Properties.Title
+			break
+		}
+	}
+	return sheetTitle, nil
+}
+
 // DeleteSheet deletes the sheet with 'title' from spreadsheet doc identified
 // by 'id'
 func (svc *Service) DeleteSheet(id, title string) error {
@@ -243,12 +262,12 @@ func (svc *Service) AppendRangeStrings(id, a1Range string, values [][]string) (*
 	resp, err := svc.values.Append(id, a1Range, &sheets.ValueRange{
 		Values: vals,
 	}).
-        ValueInputOption("USER_ENTERED").
-        Context(svc.ctx).
-        Do()
-    if err != nil {
-        return nil, err
-    }
+		ValueInputOption("USER_ENTERED").
+		Context(svc.ctx).
+		Do()
+	if err != nil {
+		return nil, err
+	}
 	return resp, nil
 }
 

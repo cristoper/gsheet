@@ -86,6 +86,15 @@ func TestSheetIntegration(t *testing.T) {
 	}
 	t.Logf("Created new sheet with id %d", sheetId)
 
+    sheetTitle, err := svcSheet.TitleFromSheetId(testfile.Id, *sheetId)
+    if err != nil {
+        t.Fatal(err)
+    }
+    if sheetTitle == nil || *sheetTitle!= "TEST" {
+        t.Fatal("New sheet not found by title")
+    }
+    t.Logf("Looked up sheet title by id and found %s", *sheetTitle)
+
 	resp, err := svcSheet.UpdateRangeCSV(testfile.Id, "TEST", strings.NewReader(testData))
 	if err != nil {
 		t.Fatal(err)

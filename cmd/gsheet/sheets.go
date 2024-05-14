@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -20,6 +22,43 @@ func deleteSheetAction(c *cli.Context) error {
 		return fmt.Errorf("The --id flag is required")
 	}
 	return sheetSvc.DeleteSheet(c.String("id"), c.String("name"))
+}
+
+func titleByIdAction(c *cli.Context) error {
+	if c.String("id") == "" {
+		return fmt.Errorf("The --id flag is required")
+	}
+	if c.String("sheetid") == "" {
+		return fmt.Errorf("The --sheetid flag is required")
+	}
+	id := c.String("id")
+	sheetId := c.Int64("sheetid")
+	title, err := sheetSvc.TitleFromSheetId(id, sheetId)
+	if err != nil {
+		return err
+	}
+	if title == nil {
+		return fmt.Errorf("No title found for sheetid %d", sheetId)
+	}
+	fmt.Fprint(c.App.Writer, *title)
+	return nil
+}
+
+func sheetInfoAction(c *cli.Context) error {
+	if c.NArg() < 1 {
+		return errors.New("SHEET_ID is required")
+	}
+	id := c.Args().Get(0)
+	info, err := sheetSvc.SpreadsheetsService().Get(id).Do()
+	if err != nil {
+		return err
+	}
+	jsonBytes, err := json.MarshalIndent(info, "", "  ")
+	if err != nil {
+		return err
+	}
+	fmt.Fprint(c.App.Writer, string(jsonBytes))
+	return nil
 }
 
 func clearSheetAction(c *cli.Context) error {

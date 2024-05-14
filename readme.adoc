@@ -90,6 +90,35 @@ To get an overview of all the commands provided by `gsheet` run:
 [source,sh]
 gsheet help
 
+```
+NAME:
+   gsheet - upload and download Google Sheet data from the cli
+
+USAGE:
+   gsheet [global options] command [command options] [arguments...]
+
+COMMANDS:
+   help, h  Shows a list of commands or help for one command
+   Files:
+     createFolder  Creates a new folder
+     delete        Delete file(s) from drive (careful, does not trash them!)
+     list          List file names and ids
+     upload        Upload a file to Google Drive.
+     download      Download a file from google drive and send it to stdout
+     info          Dump all file's metadata as json to stdout
+   Sheets:
+     csv          Pipe csv data to range or read it from range
+     title        Get the title of a sheet by its id
+     sheetInfo    Dump info about the spreadsheet as json
+     clear        Clear all values from given range
+     newSheet     Create a new sheet
+     deleteSheet  Delete the named sheet
+     sort         Sort a sheet by column(s)
+
+GLOBAL OPTIONS:
+   --help, -h  show help
+```
+
 You can also run `gsheet help CMD` to get help for each command.
 Below are some further usage hints.
 
@@ -133,7 +162,7 @@ sort --id SHEET_NAME -name Sheet1 --column=1 --asc
 
 These commands simply create and delete sheets from a spreadsheet document. The new sheets appear after all other visible sheets.
 
-NOTE: sheets are deleted by name (the title of the sheet) and not by id; this is a bit fragile because if a user changes the title of a sheet in Google Docs then a script depending on `gsheet deleteSheet` may break.
+NOTE: sheets are deleted by name (the title of the sheet) and not by id; this is a bit fragile because if a user changes the title of a sheet in Google Docs then a script depending on `gsheet deleteSheet` may break. For a convenient way to look up a sheet's title by its id, see the `gsheet title` command.
 
 [source,sh]
 ----
