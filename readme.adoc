@@ -52,7 +52,7 @@ Otherwise, if you have Go installed you can:
 [source, bash]
 ----
 # Install with go
-go install github.com/cristoper/gsheet/cmd/gsheet
+go install github.com/cristoper/gsheet/cmd/gsheet@latest
 
 # or build/install from git repo
 git clone https://github.com/cristoper/gsheet.git
