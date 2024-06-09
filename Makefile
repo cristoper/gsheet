@@ -1,4 +1,4 @@
-version := v0.1.3
+version := v0.1.4
 platforms := linux_386 linux_amd64 darwin_amd64 windows_386 windows_amd64
 SHELL := /bin/bash
 
