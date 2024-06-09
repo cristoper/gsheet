@@ -1,10 +1,11 @@
-version := v0.1.4
+version := $(shell git describe --tags)
+ldflags := '-s -w -X main.version=${version}'
 platforms := linux_386 linux_amd64 darwin_amd64 windows_386 windows_amd64
 SHELL := /bin/bash
 
 .PHONY: build
 build:
-	go build -o gsheet ./cmd/gsheet/
+	go build -ldflags ${ldflags} -o gsheet ./cmd/gsheet/
 
 .PHONY: test
 test:
