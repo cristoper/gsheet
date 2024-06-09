@@ -1,6 +1,6 @@
 module github.com/cristoper/gsheet
 
-go 1.18
+go 1.19
 
 require (
 	github.com/urfave/cli/v2 v2.27.2
