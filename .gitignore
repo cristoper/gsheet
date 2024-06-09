@@ -1,3 +1,4 @@
 credentials.json
+gsheet-*.json
 /gsheet
 /build
