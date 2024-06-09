@@ -130,6 +130,7 @@ Remember that for any of the commands to work you must have the GOOGLE_APPLICATI
 The `csv` command is the heart of `gsheet`. If you pipe csv data to it on std input, it sends the data to the specified range of the Sheets document identified by the `--id` flag. If you pass the `--append` flag, data will be appended to the last row of data found in range.
 
 If you don't connect stdin to a pipe, then it will read the specified range and output it to stdout in csv format.
+To force `gsheet` to read a range even if stdin is not connected to a tty, you can pass the `--read` flag.
 
 NOTE: `csv` does not clear the range before updating data in a Sheets document. If the piped data is smaller (fewer rows or columns) than the specified range, then any pre-existing data in the spreadsheet will remain after the update. Use `gsheet clear` to clear a range.
 

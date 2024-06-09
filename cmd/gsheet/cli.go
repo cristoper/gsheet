@@ -39,6 +39,12 @@ var app = &cli.App{
 					Value: ",",
 					Usage: `Record separator (use '\t' for tab)`,
 				},
+				&cli.BoolFlag{
+					Name:     "read",
+					Usage:    "Force gsheet to read from range instead of write to range. This is useful if stdin is set to a non-character device such as when running a script from cron.",
+					Required: false,
+					Value:    false,
+				},
 			},
 		},
 		{
